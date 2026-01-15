@@ -43,13 +43,22 @@ st.markdown(
 """
 )
 
-
-
-
 imgs = [f"PIKL_{i}.png" for i in range(1, 5)]
-captions = [f"PIKL {i}" for i in range(1, 5)]
 
-st.image(imgs, caption=captions, width=200)
+
+# 첫 줄
+col1, col2 = st.columns(2)
+with col1:
+    st.image(imgs[0], width=300)
+with col2:
+    st.image(imgs[1], width=300)
+
+# 두 번째 줄
+col3, col4 = st.columns(2)
+with col3:
+    st.image(imgs[2], width=300)
+with col4:
+    st.image(imgs[3], width=300)
 
 st.divider()
 
@@ -177,6 +186,7 @@ with tab2:
 
         st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
+
 
 
 
