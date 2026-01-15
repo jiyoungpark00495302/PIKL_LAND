@@ -43,6 +43,16 @@ st.markdown(
 """
 )
 
+
+imgs = [
+    "assets/PIKL_1.jpg",
+    "assets/PIKL_2.jpg",
+    "assets/PIKL_3.jpg",
+    "assets/PIKL_4.jpg",
+]
+
+st.image(imgs, width=200)
+
 st.divider()
 
 # 버튼을 누르면 새 탭으로 링크 열리는 '링크 버튼'
@@ -169,5 +179,6 @@ with tab2:
 
         st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
+
 
 
