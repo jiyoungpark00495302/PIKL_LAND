@@ -100,9 +100,7 @@ tab1, tab2 = st.tabs(["📌 시작하기", "📊 클릭 기록"])
 
 KST = timezone(timedelta(hours=9))
 
-
 if st.button("시작하기", use_container_width=True):
-    # 1️⃣ 클릭 로그 기록
     append_log({
         "ts": datetime.now(KST).isoformat(),
         "type": "click",
@@ -110,12 +108,17 @@ if st.button("시작하기", use_container_width=True):
         "target": "google_form_start"
     })
 
-    # 2️⃣ JS는 HTML 컴포넌트 안에서 실행
-    st.components.v1.html(
-        f"""
-        <script>
-            window.open("{GOOGLE_FORM_URL}", "_blank");
-        </script>
-        """,
-        height=0
-    )
+st.link_button(
+    "👉 구글폼 열기",
+    GOOGLE_FORM_URL,
+    use_container_width=True
+)
+
+with tab2:
+    st.subheader("📊 클릭 기록")
+
+    if "logs" not in st.session_state or len(st.session_state.logs) == 0:
+        st.info("아직 클릭 기록이 없습니다.")
+    else:
+        df = pd.DataFrame(st.session_state.logs)
+        st.dataframe(df, use_container_width=True)
