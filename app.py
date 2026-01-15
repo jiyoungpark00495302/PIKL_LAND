@@ -30,95 +30,123 @@ st.divider()
 #st.link_button("시작하기",GOOGLE_FORM_URL , type="primary", use_container_width=True)
 
 
-
-####---------------카운트-------------##############
 import streamlit as st
-import os, json
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
+import pandas as pd
+import json
+from datetime import datetime, timedelta, timezone
 
-import os, json
-from datetime import datetime, timezone, timedelta
-import streamlit as st
-
-COUNT_FILE = "visit_count.txt"
-LOG_FILE = "visit_log.jsonl"
+# ======================
+# 설정
+# ======================
+GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/XXXXXXXXXXXX/viewform"  # ✅ 여기에 구글폼 URL 넣기
 KST = timezone(timedelta(hours=9))
 
-def load_count():
-    if not os.path.exists(COUNT_FILE):
-        with open(COUNT_FILE, "w", encoding="utf-8") as f:
-            f.write("0")
-        return 0
-    with open(COUNT_FILE, "r", encoding="utf-8") as f:
-        return int(f.read().strip() or 0)
+# ======================
+# 로그 저장 (session_state + 파일 jsonl 둘 다)
+# ======================
+def append_log(log: dict):
+    # 1) 세션 메모리 저장
+    if "logs" not in st.session_state:
+        st.session_state.logs = []
+    st.session_state.logs.append(log)
 
-def save_count(n: int):
-    with open(COUNT_FILE, "w", encoding="utf-8") as f:
-        f.write(str(n))
+    # 2) 파일 저장(원치 않으면 아래 try 블록 삭제)
+    try:
+        with open("logs.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(log, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
 
-def append_log(event: dict):
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+def load_file_logs():
+    logs = []
+    try:
+        with open("logs.jsonl", "r", encoding="utf-8") as f:
+            for line in f:
+                logs.append(json.loads(line))
+    except FileNotFoundError:
+        pass
+    except Exception:
+        pass
+    return logs
 
-
-# ✅ 아래부터는 "사용" 구간 (함수 정의 이후)
-count = load_count()
-
-if "counted_visit" not in st.session_state:
-    st.session_state.counted_visit = True
-    count += 1
-    save_count(count)
-    append_log({
-        "ts": datetime.now(KST).isoformat(),
-        "type": "page_view",
-        "page": "home"
-    })
-
-
-st.set_page_config(page_title="버튼 클릭 카운터", layout="wide")
-
-# ---------------------------
-# session_state 초기화
-# ---------------------------
-if "click_count" not in st.session_state:
-    st.session_state.click_count = 0
-
-# ---------------------------
-# 기록 함수
-# ---------------------------
-
-LOG_FILE = "click_log.txt"
-def log_click(count):
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(f"{datetime.now()} | click_count={count}\n")
-
-# ---------------------------
-# 탭 구성
-# ---------------------------
+# ======================
+# UI
+# ======================
 tab1, tab2 = st.tabs(["📌 시작하기", "📊 클릭 기록"])
 
-KST = timezone(timedelta(hours=9))
+# 페이지 전환 상태
+if "step" not in st.session_state:
+    st.session_state.step = "start"   # "start" -> "open_form"
 
-if st.button("시작하기", use_container_width=True):
-    append_log({
-        "ts": datetime.now(KST).isoformat(),
-        "type": "click",
-        "page": "home",
-        "target": "google_form_start"
-    })
+with tab1:
+    # 1) 시작 화면
+    if st.session_state.step == "start":
+        st.subheader("📌 설문 시작")
 
-st.link_button(
-    "👉 구글폼 열기",
-    GOOGLE_FORM_URL,
-    use_container_width=True
-)
+        if st.button("시작하기", use_container_width=True):
+            append_log({
+                "ts": datetime.now(KST).isoformat(),
+                "type": "click",
+                "page": "home",
+                "target": "start"
+            })
+
+            st.session_state.step = "open_form"
+            st.rerun()
+
+    # 2) 구글폼 열기 화면
+    elif st.session_state.step == "open_form":
+        st.subheader("📄 설문 참여 안내")
+        st.success("아래 버튼을 눌러 설문을 진행해주세요. (새 탭으로 열립니다)")
+
+        # 구글폼 열기 클릭도 로그 남기고 싶다면: link_button을 버튼+로그로 분리
+        # (link_button 자체는 클릭 이벤트를 파이썬으로 받기 어려워서 아래처럼 구성)
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # 로그 남기고 -> JS로 새 탭 열기 (팝업차단 거의 없음: 사용자 클릭 이벤트 기반)
+            if st.button("👉 구글폼 열기", use_container_width=True):
+                append_log({
+                    "ts": datetime.now(KST).isoformat(),
+                    "type": "click",
+                    "page": "open_form",
+                    "target": "google_form_open"
+                })
+                st.components.v1.html(
+                    f"""
+                    <a id="go" href="{GOOGLE_FORM_URL}" target="_blank"></a>
+                    <script>
+                      document.getElementById("go").click();
+                    </script>
+                    """,
+                    height=0
+                )
+
+        with col2:
+            if st.button("← 처음으로", use_container_width=True):
+                append_log({
+                    "ts": datetime.now(KST).isoformat(),
+                    "type": "click",
+                    "page": "open_form",
+                    "target": "back_to_start"
+                })
+                st.session_state.step = "start"
+                st.rerun()
 
 with tab2:
     st.subheader("📊 클릭 기록")
 
-    if "logs" not in st.session_state or len(st.session_state.logs) == 0:
+    # 세션 로그 + 파일 로그 합쳐서 보기 (중복 가능. 필요하면 합치기 로직 추가)
+    session_logs = st.session_state.get("logs", [])
+    file_logs = load_file_logs()
+    logs = session_logs if session_logs else file_logs
+
+    if not logs:
         st.info("아직 클릭 기록이 없습니다.")
     else:
-        df = pd.DataFrame(st.session_state.logs)
+        df = pd.DataFrame(logs)
+        if "ts" in df.columns:
+            df = df.sort_values("ts", ascending=False)
+
+        st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
