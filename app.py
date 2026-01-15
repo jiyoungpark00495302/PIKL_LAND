@@ -114,7 +114,7 @@ if st.button("시작하기", use_container_width=True):
     st.components.v1.html(
         f"""
         <script>
-            window.open("{FORM_URL}", "_blank");
+            window.open("{GOOGLE_FORM_URL}", "_blank");
         </script>
         """,
         height=0
