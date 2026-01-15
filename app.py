@@ -100,9 +100,9 @@ tab1, tab2 = st.tabs(["📌 시작하기", "📊 클릭 기록"])
 
 KST = timezone(timedelta(hours=9))
 
-# ✅ 버튼 하나로 합치기
+
 if st.button("시작하기", use_container_width=True):
-    # 1) 클릭 로그 기록
+    # 1️⃣ 클릭 로그 기록
     append_log({
         "ts": datetime.now(KST).isoformat(),
         "type": "click",
@@ -110,11 +110,12 @@ if st.button("시작하기", use_container_width=True):
         "target": "google_form_start"
     })
 
-    # 2) 구글 폼 새 탭 열기
-    st.components.v1.html(f"""
+    # 2️⃣ JS는 HTML 컴포넌트 안에서 실행
+    st.components.v1.html(
+        f"""
         <script>
             window.open("{FORM_URL}", "_blank");
         </script>
-    """, height=0)
-
-    st.success("구글 폼을 새 탭에서 열었어요!")
+        """,
+        height=0
+    )
