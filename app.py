@@ -1,29 +1,34 @@
+######-------------페이지 구현---------############
+
 import streamlit as st
 
-GOOGLE_FORM_URL = "https://forms.gle/여기에_네_구글폼_링크"
+GOOGLE_FORM_URL = "https://forms.gle/43bhQMmmKLGZjswH9"
 
 st.set_page_config(
     page_title="PIKL",
-    page_icon="🚀",
+    page_icon="",
     layout="centered",
 )
 
-st.title("PIKL 🚀")
-st.write("한 줄 소개: 이 서비스는 ~~를 ~~하게 해줍니다.")
+st.title("PIKL")
+st.write("""
+        건강한 토론장이 되는 사회 공유 서비스
+        """)
 
-st.subheader("기능 설명")
+
 st.markdown(
     """
-- ✅ 기능 1: 뭐가 좋은지
-- ✅ 기능 2: 누구에게 좋은지
-- ✅ 기능 3: 어떤 결과가 나오는지
+- ✅ 우리학교, 우리 학과에서 가장 뜨거운 이슈를 확인해요!
+- ✅ 민감한 주제에 대해서도 건강하게 의견을 나눠요!
+- ✅ 의견을 공유할 때마다 무럭무럭 자라나는 피클!
 """
 )
 
 st.divider()
 
 # 버튼을 누르면 새 탭으로 링크 열리는 '링크 버튼'
-st.link_button("시작하기","https://forms.gle/tCjHKKRSAvNPXnJdA" , type="primary", use_container_width=True)
+st.link_button("시작하기",GOOGLE_FORM_URL , type="primary", use_container_width=True)
+
 
 
 ####---------------카운트-------------##############
@@ -32,77 +37,67 @@ import os, json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-COUNT_FILE = Path("visit_count.txt")
-LOG_FILE = Path("visit_log.jsonl")
-KST = timezone(timedelta(hours=9))
 
-def load_count():
-    if not COUNT_FILE.exists():
-        COUNT_FILE.write_text("0", encoding="utf-8")
-        return 0
-    txt = COUNT_FILE.read_text(encoding="utf-8").strip()
-    return int(txt) if txt else 0
+st.set_page_config(page_title="버튼 클릭 카운터", layout="wide")
 
-def save_count(n: int):
-    COUNT_FILE.write_text(str(n), encoding="utf-8")
+# ---------------------------
+# session_state 초기화
+# ---------------------------
+if "click_count" not in st.session_state:
+    st.session_state.click_count = 0
 
-def append_log(event: dict):
-    with LOG_FILE.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+# ---------------------------
+# 기록 함수
+# ---------------------------
 
-# ✅ 세션(탭) 최초 1회만 증가
-if "counted" not in st.session_state:
-    st.session_state["counted"] = True
-
-    count = load_count() + 1
-    save_count(count)
-    append_log({
-        "ts": datetime.now(KST).isoformat(),
-        "type": "page_view",
-        "page": "home"
-    })
-else:
-    count = load_count()
-
-st.write(f"📌 방문 수(세션당 1회): {count}")
-
-
-
-import streamlit as st
-import os, json
-from datetime import datetime, timezone, timedelta
-
-COUNT_FILE = "visit_count.txt"
-LOG_FILE = "visit_log.jsonl"
-KST = timezone(timedelta(hours=9))
-
-def load_count():
-    if not os.path.exists(COUNT_FILE):
-        with open(COUNT_FILE, "w") as f:
-            f.write("0")
-        return 0
-    with open(COUNT_FILE, "r") as f:
-        return int(f.read().strip() or 0)
-
-def save_count(n: int):
-    with open(COUNT_FILE, "w") as f:
-        f.write(str(n))
-
-def append_log(event: dict):
+LOG_FILE = "click_log.txt"
+def log_click(count):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+        f.write(f"{datetime.now()} | click_count={count}\n")
 
-count = load_count()
+# ---------------------------
+# 탭 구성
+# ---------------------------
+tab1, tab2 = st.tabs(["📌 시작하기", "📊 클릭 기록"])
 
-if "counted_visit" not in st.session_state:
-    st.session_state.counted_visit = True
-    count += 1
-    save_count(count)
-    append_log({
-        "ts": datetime.now(KST).isoformat(),
-        "type": "page_view",
-        "page": "home"
-    })
+# ---------------------------
+# 탭 1: 버튼 + 카운트
+# ---------------------------
+with tab1:
+    st.subheader("Google Form 시작하기")
 
-st.info(f"📌 방문 수(세션당 1회): {count}")
-st.write(open("visit_log.jsonl").read())
+    # 실제 이동용 링크 버튼
+    st.link_button(
+        "시작하기",
+        GOOGLE_FORM_URL,
+        type="primary",
+        use_container_width=True
+    )
+
+    # 클릭 감지용 버튼 (카운트 증가)
+    if st.button("시작하기 버튼 클릭 기록", use_container_width=True):
+        st.session_state.click_count += 1
+        log_click(st.session_state.click_count)
+        st.success("클릭이 기록되었습니다!")
+
+    st.metric(
+        label="총 클릭 수",
+        value=st.session_state.click_count
+    )
+
+# ---------------------------
+# 탭 2: 로그 확인
+# ---------------------------
+with tab2:
+    st.subheader("클릭 기록 로그")
+
+    try:
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            logs = f.read()
+        st.text_area(
+            "기록 내용",
+            logs,
+            height=400
+        )
+    except FileNotFoundError:
+        st.info("아직 기록된 클릭이 없습니다.")
