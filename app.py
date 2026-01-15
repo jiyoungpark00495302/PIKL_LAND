@@ -100,7 +100,7 @@ if "step" not in st.session_state:
 with tab1:
     # 1) 시작 화면
     if st.session_state.step == "start":
-        st.subheader("📌 설문 시작")
+        st.subheader("📌 사전 예약 설문")
 
         if st.button("시작하기", use_container_width=True):
             append_log({
