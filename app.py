@@ -120,7 +120,7 @@ with tab1:
 
         # 구글폼 열기 클릭도 로그 남기고 싶다면: link_button을 버튼+로그로 분리
         # (link_button 자체는 클릭 이벤트를 파이썬으로 받기 어려워서 아래처럼 구성)
-        col1 = st.columns(1)
+        col1, col2 = st.columns(2)
 
         with col1:
             # 로그 남기고 -> JS로 새 탭 열기 (팝업차단 거의 없음: 사용자 클릭 이벤트 기반)
@@ -141,7 +141,16 @@ with tab1:
                     height=0
                 )
 
-        
+        with col2:
+            if st.button("← 처음으로", use_container_width=True):
+                append_log({
+                    "ts": datetime.now(KST).isoformat(),
+                    "type": "click",
+                    "page": "open_form",
+                    "target": "back_to_start"
+                })
+                st.session_state.step = "start"
+                st.rerun()
 
 with tab2:
     st.subheader("📊 클릭 기록")
@@ -160,3 +169,5 @@ with tab2:
 
         st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
+
+
