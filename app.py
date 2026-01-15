@@ -45,21 +45,19 @@ st.markdown(
 
 imgs = [f"PIKL_{i}.png" for i in range(1, 5)]
 
-
 # 첫 줄
-col1, col2 = st.columns(2)
+col1, col2 = st.columns(2, gap="small")
 with col1:
-    st.image(imgs[0], width=300)
+    st.image(imgs[0], use_column_width=True)
 with col2:
-    st.image(imgs[1], width=300)
+    st.image(imgs[1], use_column_width=True)
 
 # 두 번째 줄
-col3, col4 = st.columns(2)
+col3, col4 = st.columns(2, gap="small")
 with col3:
-    st.image(imgs[2], width=300)
+    st.image(imgs[2], use_column_width=True)
 with col4:
-    st.image(imgs[3], width=300)
-
+    st.image(imgs[3], use_column_width=True)
 st.divider()
 
 # 버튼을 누르면 새 탭으로 링크 열리는 '링크 버튼'
@@ -186,6 +184,7 @@ with tab2:
 
         st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
+
 
 
 
