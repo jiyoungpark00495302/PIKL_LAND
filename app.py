@@ -2,6 +2,10 @@
 
 import streamlit as st
 
+st.set_page_config(
+    page_title="PIKL",
+    page_icon="🥒"
+)
 st.set_page_config(page_title="설문", page_icon="📝", layout="centered")
 
 st.markdown("""
@@ -184,6 +188,7 @@ with tab2:
 
         st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
+
 
 
 
