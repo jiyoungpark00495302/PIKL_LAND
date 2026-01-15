@@ -38,7 +38,7 @@ from datetime import datetime, timedelta, timezone
 # ======================
 # 설정
 # ======================
-GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/XXXXXXXXXXXX/viewform"  # ✅ 여기에 구글폼 URL 넣기
+  # ✅ 여기에 구글폼 URL 넣기
 KST = timezone(timedelta(hours=9))
 
 # ======================
