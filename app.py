@@ -2,6 +2,25 @@
 
 import streamlit as st
 
+st.set_page_config(page_title="설문", page_icon="📝", layout="centered")
+
+st.markdown("""
+<style>
+/* 상단 Streamlit 헤더 숨김 */
+header {visibility: hidden; height: 0px;}
+
+/* 우측 상단 햄버거 메뉴(Deploy/Settings 등) 숨김 */
+#MainMenu {visibility: hidden;}
+
+/* 하단 "Made with Streamlit" 같은 푸터 숨김 */
+footer {visibility: hidden;}
+
+/* 상단 여백 줄이기 (선택) */
+.block-container {padding-top: 1rem;}
+</style>
+""", unsafe_allow_html=True)
+
+
 GOOGLE_FORM_URL = "https://forms.gle/43bhQMmmKLGZjswH9"
 
 st.set_page_config(
