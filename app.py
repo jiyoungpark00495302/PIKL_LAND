@@ -27,7 +27,7 @@ st.markdown(
 st.divider()
 
 # 버튼을 누르면 새 탭으로 링크 열리는 '링크 버튼'
-st.link_button("시작하기",GOOGLE_FORM_URL , type="primary", use_container_width=True)
+#st.link_button("시작하기",GOOGLE_FORM_URL , type="primary", use_container_width=True)
 
 
 
@@ -60,44 +60,20 @@ def log_click(count):
 # ---------------------------
 tab1, tab2 = st.tabs(["📌 시작하기", "📊 클릭 기록"])
 
-# ---------------------------
-# 탭 1: 버튼 + 카운트
-# ---------------------------
-with tab1:
-    st.subheader("Google Form 시작하기")
+KST = timezone(timedelta(hours=9))
 
-    # 실제 이동용 링크 버튼
-    st.link_button(
-        "시작하기",
-        GOOGLE_FORM_URL,
-        type="primary",
-        use_container_width=True
-    )
 
-    # 클릭 감지용 버튼 (카운트 증가)
-    if st.button("시작하기 버튼 클릭 기록", use_container_width=True):
-        st.session_state.click_count += 1
-        log_click(st.session_state.click_count)
-        st.success("클릭이 기록되었습니다!")
+if st.button("🚀 시작하기", use_container_width=True):
+    # 1. 클릭 로그 기록
+    append_log({
+        "ts": datetime.now(KST).isoformat(),
+        "type": "click",
+        "page": "home",
+        "target": "google_form_start"
+    })
 
-    st.metric(
-        label="총 클릭 수",
-        value=st.session_state.click_count
-    )
-
-# ---------------------------
-# 탭 2: 로그 확인
-# ---------------------------
-with tab2:
-    st.subheader("클릭 기록 로그")
-
-    try:
-        with open(LOG_FILE, "r", encoding="utf-8") as f:
-            logs = f.read()
-        st.text_area(
-            "기록 내용",
-            logs,
-            height=400
-        )
-    except FileNotFoundError:
-        st.info("아직 기록된 클릭이 없습니다.")
+    # 2. 링크 열기
+    st.success("구글 폼을 여는 중입니다 👇")
+    st.markdown(f"""
+    <meta http-equiv="refresh" content="0; url={FORM_URL}">
+    """, unsafe_allow_html=True)
