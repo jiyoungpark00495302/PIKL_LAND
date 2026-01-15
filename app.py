@@ -37,6 +37,44 @@ import os, json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+import os, json
+from datetime import datetime, timezone, timedelta
+import streamlit as st
+
+COUNT_FILE = "visit_count.txt"
+LOG_FILE = "visit_log.jsonl"
+KST = timezone(timedelta(hours=9))
+
+def load_count():
+    if not os.path.exists(COUNT_FILE):
+        with open(COUNT_FILE, "w", encoding="utf-8") as f:
+            f.write("0")
+        return 0
+    with open(COUNT_FILE, "r", encoding="utf-8") as f:
+        return int(f.read().strip() or 0)
+
+def save_count(n: int):
+    with open(COUNT_FILE, "w", encoding="utf-8") as f:
+        f.write(str(n))
+
+def append_log(event: dict):
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+
+
+# ✅ 아래부터는 "사용" 구간 (함수 정의 이후)
+count = load_count()
+
+if "counted_visit" not in st.session_state:
+    st.session_state.counted_visit = True
+    count += 1
+    save_count(count)
+    append_log({
+        "ts": datetime.now(KST).isoformat(),
+        "type": "page_view",
+        "page": "home"
+    })
+
 
 st.set_page_config(page_title="버튼 클릭 카운터", layout="wide")
 
