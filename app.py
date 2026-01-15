@@ -44,14 +44,12 @@ st.markdown(
 )
 
 
-imgs = [
-    "assets/PIKL_1.jpg",
-    "assets/PIKL_2.jpg",
-    "assets/PIKL_3.jpg",
-    "assets/PIKL_4.jpg",
-]
 
-st.image(imgs, width=200)
+
+imgs = [f"PIKL_{i}.png" for i in range(1, 5)]
+captions = [f"PIKL {i}" for i in range(1, 5)]
+
+st.image(imgs, caption=captions, width=200)
 
 st.divider()
 
@@ -179,6 +177,7 @@ with tab2:
 
         st.metric("총 기록 수", len(df))
         st.dataframe(df, use_container_width=True)
+
 
 
 
